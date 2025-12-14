@@ -1,11 +1,12 @@
-import "./App.css";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import fiche2 from "./assets/fiche2.png";
 import buttonImg from "./assets/button.png";
 import logo from "./assets/texture_login/logo.png";
 import registerFiche from "./assets/texture_register/fiche.png";
 import registerButton from "./assets/texture_register/button.png";
-
+import "./App.css";
+import Menu from "./menu";
+import Therapist from "./therapist";
 export default function App() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -15,6 +16,42 @@ export default function App() {
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const [isRegistering, setIsRegistering] = useState(false);
   const formRef = useRef<HTMLFormElement | null>(null);
+  const API = import.meta.env.VITE_API_URL || "http://localhost:4000";
+  const [token, setToken] = useState<string | null>(
+    typeof window !== "undefined" ? localStorage.getItem("token") : null
+  );
+  const [currentUser, setCurrentUser] = useState<string | null>(
+    typeof window !== "undefined" ? localStorage.getItem("username") : null
+  );
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && !localStorage.getItem("token")) {
+      const existing = localStorage.getItem("preAuthPath");
+      if (!existing) {
+        localStorage.setItem("preAuthPath", window.location.pathname || "/");
+      }
+    }
+  }, []);
+
+  if (token) {
+    if (
+      typeof window !== "undefined" &&
+      window.location.pathname === "/therapist"
+    ) {
+      return <Therapist />;
+    }
+    return (
+      <Menu
+        username={currentUser}
+        onLogout={() => {
+          localStorage.removeItem("token");
+          localStorage.removeItem("username");
+          setToken(null);
+          setCurrentUser(null);
+        }}
+      />
+    );
+  }
   // registration form state
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -34,14 +71,61 @@ export default function App() {
         alert("Passwords do not match.");
         return;
       }
-      console.log("Registering:", { firstName, lastName, regEmail });
-      alert(`Registering ${firstName} ${lastName} (${regEmail})`);
+
+      setIsRegistering(true);
+      fetch(`${API}/auth/signup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: regEmail,
+          username: `${firstName} ${lastName}`,
+          password: regPassword,
+        }),
+      })
+        .then(async (res) => {
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || JSON.stringify(data));
+          // save token and username
+          if (data.token) {
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("username", data.user?.username || regEmail);
+            setToken(data.token);
+            setCurrentUser(data.user?.username || regEmail);
+          }
+          setIsRegisterView(false);
+          alert("Registration successful");
+        })
+        .catch((err) => {
+          console.error(err);
+          alert("Registration failed: " + err.message);
+        })
+        .finally(() => setIsRegistering(false));
       return;
     }
 
-    // simple sign-in placeholder
-    console.log("Sign in", { email, password });
-    alert(`Signing in as ${email}`);
+    // sign in
+    setIsRegistering(true);
+    fetch(`${API}/auth/signin`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username: email, password }),
+    })
+      .then(async (res) => {
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || JSON.stringify(data));
+        if (data.token) {
+          localStorage.setItem("token", data.token);
+          localStorage.setItem("username", data.user?.username || email);
+          setToken(data.token);
+          setCurrentUser(data.user?.username || email);
+        }
+        // token and current user set — App will now render the Menu component
+      })
+      .catch((err) => {
+        console.error(err);
+        alert("Sign in failed: " + err.message);
+      })
+      .finally(() => setIsRegistering(false));
   }
 
   function handleRegisterClick(e: React.MouseEvent) {
@@ -85,7 +169,9 @@ export default function App() {
 
         <form
           ref={formRef}
-          className={`fiche2-form ${isRegistering ? "hide-contents" : ""}`}
+          className={`fiche2-form ${
+            isRegistering || isRegisterView ? "hide-contents" : ""
+          }`}
           onSubmit={handleSubmit}
         >
           <input

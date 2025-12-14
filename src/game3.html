@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Quiet Maze – centered</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <style>
+      :root {
+        --wall: #073642;
+        --path: #eee8d5;
+        --player-img: url("C:\Users\Tor\Desktop\react\challenge1\hackathon-\src\assets\wetransfer_food-png_2025-12-14_0534\sbouii2.png");
+        --exit-img: url("C:\Users\Tor\Desktop\react\challenge1\hackathon-\src\assets\wetransfer_food-png_2025-12-14_0534\food.png");
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      h3 {
+        position: absolute;
+        top: 40px;
+        color: #000000;
+        margin: 0;
+      }
+      body {
+        margin: 0;
+        background: url("C:\Users\Tor\Desktop\react\challenge1\hackathon-\src\assets\wetransfer_untitled-transfer_2025-12-14_0540\maze.png")
+          center/cover no-repeat;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-family: system-ui;
+      }
+      #wrap {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transform: translateY(-60px);
+      }
+      #m {
+        display: grid;
+        gap: 2px;
+      }
+      .c {
+        width: 20px;
+        height: 20px;
+        background: var(--path);
+      }
+      .w {
+        background: var(--wall);
+      }
+      .p {
+        background: var(--path);
+        background-image: var(--player-img);
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+      }
+      .exit {
+        background: var(--path);
+        background-image: var(--exit-img);
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+      }
+      /* ---------- success overlay ---------- */
+      #win {
+        position: fixed;
+        inset: 0;
+        background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.6s;
+        color: #fff;
+        text-align: center;
+      }
+      #win.show {
+        opacity: 1;
+        pointer-events: all;
+      }
+      #win h1 {
+        margin: 0.2em 0;
+        font-size: 3rem;
+      }
+      #win button {
+        position: absolute;
+        left: 50%;
+        bottom: 40px;
+        transform: translateX(-50%);
+        padding: 0.6em 1.4em;
+        font-size: 1.1rem;
+        border: none;
+        border-radius: 30px;
+        background: transparent;
+        color: #8b5e3c;
+        cursor: pointer;
+        box-shadow: none;
+      }
+      #win button:hover {
+        transform: translateX(-50%) translateY(-4px);
+      }
+      .conf {
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        background: #fff;
+        border-radius: 50%;
+        opacity: 0;
+        animation: pop 0.6s ease-out;
+      }
+      @keyframes pop {
+        0% {
+          transform: translateY(0) scale(1);
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(120px) scale(0);
+          opacity: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h3>Help Sbou3i find foond.</h3>
+
+    <!-- invisible top-right menu redirect button -->
+    <button
+      aria-label="Go to menu"
+      onclick="window.location.href='/'"
+      style="
+        position: fixed;
+        top: 24px;
+        right: 12px;
+        width: 160px;
+        height: 160px;
+        background: transparent;
+        border: none;
+        padding: 0;
+        margin: 0;
+        cursor: pointer;
+        opacity: 0;
+        z-index: 9999;
+      "
+    ></button>
+
+    <div id="wrap">
+      <div id="m"></div>
+    </div>
+
+    <!-- success screen -->
+    <div id="win">
+      <h1>🎉 Game Successful</h1>
+      <p>You found the quiet corner. Well done.</p>
+      <button onclick="location.reload()">Play Again</button>
+    </div>
+
+    <script>
+      /* ---------- config ---------- */
+      const W = 27,
+        H = 21;
+      const m = document.getElementById("m");
+      m.style.gridTemplateColumns = `repeat(${W},20px)`;
+
+      /* ---------- randomised Prim’s ---------- */
+      function genMaze(w, h) {
+        const g = Array.from({ length: h }, () => Array(w).fill(1));
+        const start = [
+          1 | (((Math.random() * (w - 2)) >> 1) << 1),
+          1 | (((Math.random() * (h - 2)) >> 1) << 1),
+        ];
+        const walls = [];
+        g[start[1]][start[0]] = 0;
+        const dirs = [
+          [0, -2],
+          [0, 2],
+          [2, 0],
+          [-2, 0],
+        ];
+        const inBounds = (x, y) => x > 0 && x < w - 1 && y > 0 && y < h - 1;
+        function addWalls(x, y) {
+          dirs.forEach(([dx, dy]) => {
+            const nx = x + dx,
+              ny = y + dy;
+            if (inBounds(nx, ny) && g[ny][nx] === 1) walls.push([x, y, nx, ny]);
+          });
+        }
+        addWalls(start[0], start[1]);
+        while (walls.length) {
+          const [ax, ay, bx, by] = walls.splice(
+            (Math.random() * walls.length) | 0,
+            1
+          )[0];
+          if (g[by][bx] === 1) {
+            g[(ay + by) / 2][(ax + bx) / 2] = 0;
+            g[by][bx] = 0;
+            addWalls(bx, by);
+          }
+        }
+        g[h - 2][w - 2] = 2; // exit
+        return g;
+      }
+      const maze = genMaze(W, H);
+
+      /* ---------- render ---------- */
+      let px = 1,
+        py = 1;
+      maze.forEach((row, y) => {
+        row.forEach((cell, x) => {
+          const d = document.createElement("div");
+          d.className = "c " + (cell === 1 ? "w" : cell === 2 ? "exit" : "");
+          if (x === px && y === py) d.classList.add("p");
+          m.appendChild(d);
+        });
+      });
+      function draw() {
+        document.querySelector(".p").classList.remove("p");
+        m.children[py * W + px].classList.add("p");
+      }
+
+      /* ---------- win sequence ---------- */
+      let finished = false;
+      function confetti() {
+        const colors = ["#fff", "#ff9a9e", "#fecfef", "#a18cd1", "#fbc2eb"];
+        for (let i = 0; i < 40; i++) {
+          const dot = document.createElement("div");
+          dot.className = "conf";
+          dot.style.left = Math.random() * 100 + "%";
+          dot.style.background = colors[(Math.random() * colors.length) | 0];
+          dot.style.animationDelay = Math.random() * 0.4 + "s";
+          win.appendChild(dot);
+        }
+      }
+      const win = document.getElementById("win");
+      function showSuccess() {
+        if (finished) return;
+        finished = true;
+        confetti();
+        win.classList.add("show");
+      }
+      document.addEventListener("keydown", (e) => {
+        if (finished) return;
+        let nx = px,
+          ny = py;
+        if (e.key === "ArrowUp") ny--;
+        if (e.key === "ArrowDown") ny++;
+        if (e.key === "ArrowLeft") nx--;
+        if (e.key === "ArrowRight") nx++;
+        if (maze[ny][nx] !== 1) {
+          px = nx;
+          py = ny;
+          draw();
+        }
+        if (maze[ny][nx] === 2) showSuccess();
+      });
+    </script>
+  </body>
+</html>
