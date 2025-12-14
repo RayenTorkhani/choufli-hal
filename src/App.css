@@ -1,0 +1,413 @@
+@import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
+
+/* Load local Minecraft font (place the .ttf under `src/assets/minecraft/`) */
+@font-face {
+  font-family: "Minecraft";
+  src: url("./assets/minecraft/Minecraft.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Make the site use the Minecraft font by default where possible */
+html,
+body {
+  font-family: "Minecraft", "Press Start 2P", monospace;
+}
+
+/* Background container for the app */
+.app-bg {
+  background-image: url("./assets/BG.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* Container to position background and content */
+.app-container {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* Put background behind content and make it fill container */
+.app-bg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+
+/* Centered logo over the background (non-interactive) */
+.site-logo {
+  position: absolute;
+  /* place the logo on the left side of the page, vertically centered */
+  /* shift it right by default and make it much larger */
+  left: var(--logo-left, 21%);
+  top: 50%;
+  transform: translateY(-50%);
+  width: var(--logo-width, 420px);
+  max-width: 45vw;
+  height: auto;
+  z-index: 0; /* sits above background but behind fiche wrapper */
+  pointer-events: none; /* don't block form interactions */
+  user-select: none;
+  opacity: 0.98;
+  transition: width 240ms ease, left 240ms ease, transform 240ms ease;
+}
+
+/* Transition helpers for swapping fiche images */
+.fiche2-wrapper.fade-out {
+  opacity: 0;
+  transform: translate(-50%, 6px) scale(0.98);
+  transition: opacity 300ms ease, transform 300ms ease;
+}
+.fiche2-wrapper.fade-in {
+  opacity: 1;
+  transform: translate(-50%, 0) scale(1);
+  transition: opacity 350ms ease, transform 350ms ease;
+}
+
+.fiche2-img {
+  transition: opacity 300ms ease, transform 300ms ease;
+}
+
+/* Center fiche2 image both horizontally and vertically */
+.fiche2-wrapper {
+  position: absolute;
+  /* horizontal position configurable via --fiche-left */
+  left: var(--fiche-left, 80%);
+  /* vertical position configurable via --fiche-bottom */
+  /* moved slightly down by default */
+  bottom: var(--fiche-bottom, 6vh);
+  transform: translate(-50%, 0);
+  z-index: 1;
+  /* make the wrapper a little bigger while keeping it responsive
+          width controls the displayed size of the fiche image */
+  width: min(48vw, 900px);
+  max-width: 100%; /* never exceed viewport */
+  height: auto;
+  display: block;
+  /* allow interaction with children (inputs / button) */
+  pointer-events: auto;
+}
+
+.fiche2-img {
+  display: block;
+  /* image fills the wrapper so the wrapper controls size */
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+/* Form inside the fiche wrapper - keep layout relative to wrapper */
+.fiche2-form {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none; /* let the inputs override to auto */
+  /* ensure overlay matches the image size exactly */
+  width: 100%;
+  height: 100%;
+}
+
+/* Email input placed over the fiche image */
+.fiche2-email {
+  position: absolute;
+  /* place input roughly in the upper-middle area of the fiche */
+  top: 37%;
+  left: 52%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  /* slightly larger hit area */
+  width: 48%;
+  height: 42px;
+  max-width: 900px;
+  padding: 14px 18px;
+  /* Minecraft local font (fallback to Press Start 2P if missing) */
+  font-family: "Minecraft", "Press Start 2P", monospace;
+  font-size: 15px;
+  line-height: 1.1;
+  border-radius: 8px;
+  color: #111;
+  outline: none;
+  pointer-events: auto;
+}
+.fiche2-password {
+  position: absolute;
+  /* place input roughly in the upper-middle area of the fiche */
+  top: 47%;
+  left: 52%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  /* slightly larger hit area */
+  width: 48%;
+  height: 42px;
+  max-width: 900px;
+  padding: 14px 18px;
+  /* Minecraft local font (fallback to Press Start 2P if missing) */
+  font-family: "Minecraft", "Press Start 2P", monospace;
+  font-size: 15px;
+  line-height: 1.1;
+  border-radius: 8px;
+  color: #111;
+  outline: none;
+  pointer-events: auto;
+}
+
+.fiche2-password::placeholder {
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.fiche2-email::placeholder {
+  color: rgba(0, 0, 0, 0.45);
+}
+
+/* Controls row: remember checkbox + forgot password link */
+.fiche2-controls {
+  position: absolute;
+  top: 52%;
+  left: 54%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  width: 40%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: auto;
+}
+
+.fiche2-remember {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: "Minecraft", "Press Start 2P", monospace;
+  font-size: 12px;
+  color: #111;
+  cursor: pointer;
+  padding-left: 0;
+  /* slightly larger hit area around the checkbox text */
+  padding: 6px 8px;
+  border-radius: 6px;
+  pointer-events: auto; /* allow clicking despite parent disabling pointer-events */
+}
+
+/* hide the native checkbox but keep it accessible */
+.fiche2-remember-checkbox {
+  /* show native checkbox control */
+  position: static;
+  /* bigger control and touch target */
+  width: 22px;
+  height: 22px;
+  opacity: 1;
+  margin: 0 10px 0 0;
+  vertical-align: middle;
+  accent-color: #111; /* modern browsers will tint the checkbox */
+  -webkit-appearance: checkbox;
+  appearance: checkbox;
+  pointer-events: auto; /* ensure the checkbox itself receives clicks */
+}
+
+/* visual box shown via the label's span pseudo-element */
+.fiche2-remember-label::before {
+  display: none;
+}
+.fiche2-remember-label::after {
+  display: none;
+}
+
+/* keep native focus visible */
+.fiche2-remember-checkbox:focus {
+  outline: 2px solid rgba(0, 123, 255, 0.25);
+  outline-offset: 2px;
+}
+
+.fiche2-forgot {
+  color: #111;
+  text-decoration: underline;
+  font-family: "Minecraft", "Press Start 2P", monospace;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.fiche2-forgot:hover,
+.fiche2-register:hover {
+  opacity: 0.85;
+}
+
+/* Image-based submit button */
+.fiche2-submit {
+  position: absolute;
+  /* place the button centered horizontally and slightly higher */
+  top: 55%;
+  left: 54%;
+  transform: translate(-50%, 0);
+  z-index: 3;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.fiche2-submit img {
+  display: block;
+  /* make the image a lot larger and centered */
+  width: 90%;
+  max-width: 700px;
+  height: auto;
+  user-select: none;
+}
+
+/* Register link under the submit button */
+.fiche2-register {
+  position: absolute;
+  top: 65%;
+  left: 54%;
+  transform: translate(-50%, 0);
+  z-index: 3;
+  display: block;
+  color: #000000;
+  text-decoration: underline;
+  font-family: "Minecraft", "Press Start 2P", monospace;
+  font-size: 14px;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.fiche2-register:hover {
+  opacity: 0.9;
+}
+
+/* Hide fiche components when user clicks register (fade + slide up) */
+.fiche2-form.hide-contents .fiche2-email,
+.fiche2-form.hide-contents .fiche2-password,
+.fiche2-form.hide-contents .fiche2-controls,
+.fiche2-form.hide-contents .fiche2-submit,
+.fiche2-form.hide-contents .fiche2-register {
+  opacity: 0;
+  transform: translateY(-10px);
+  pointer-events: none;
+  transition: opacity 260ms ease, transform 260ms ease;
+}
+
+/* ensure elements have transition defined even before hide happens */
+.fiche2-email,
+.fiche2-password,
+.fiche2-controls,
+.fiche2-submit,
+.fiche2-register {
+  transition: opacity 260ms ease, transform 260ms ease;
+}
+
+/* Registration fields (stacked inputs that appear after the fiche swaps) */
+.register-fields {
+  position: absolute;
+  top: 30%;
+  left: calc(50% + 4%);
+  transform: translateX(-50%) translateY(-6px);
+  width: 55%;
+  max-width: 520px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: stretch;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 380ms ease, transform 380ms ease;
+  z-index: 3;
+}
+.register-fields.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+
+.fiche2-input {
+  /* Match fiche2 field visual styling (font, padding, size, radius) */
+  width: 100%;
+  height: 35px;
+  padding: 12px 16px;
+  font-family: "Minecraft", "Press Start 2P", monospace;
+  font-size: 14px;
+  line-height: 1.1;
+  border-radius: 8px;
+  color: #111;
+  background: transparent;
+  border: none;
+  outline: none;
+  box-sizing: border-box;
+  pointer-events: auto;
+  transition: transform 220ms ease, opacity 220ms ease;
+}
+
+/* Position tweaks for registration fields: first field a bit up, others a bit down */
+.register-fields .reg-first {
+  transform: translateY(-8px);
+}
+.register-fields .reg-email {
+  transform: translateY(8px);
+}
+.register-fields .reg-pass {
+  transform: translateY(16px);
+}
+.register-fields .reg-confirm {
+  transform: translateY(26px);
+}
+.fiche2-input::placeholder {
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.reg-submit img {
+  width: 80%;
+  height: auto;
+  display: block;
+  margin: 4px auto 0;
+}
+.reg-submit img {
+  display: block;
+  width: 90%;
+  max-width: 700px;
+  height: auto;
+  margin: 0 auto;
+  user-select: none;
+}
+
+/* Hide inline register submit (we use a centered CTA after animation) */
+.reg-submit {
+  display: none;
+}
+
+/* Centered CTA that appears after swap animation */
+.register-cta-btn {
+  position: absolute;
+  left: 50%;
+  top: var(--register-cta-top, 72%); /* moved a little up */
+  transform: translate(-50%, -50%);
+  width: var(--register-cta-size, 180px); /* increased default size */
+  max-width: 26vw;
+  height: auto;
+  z-index: 4;
+  pointer-events: auto;
+  user-select: none;
+  opacity: 1;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: transform 180ms ease, opacity 180ms ease;
+}
+.register-cta-btn img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.register-cta-btn:hover {
+  transform: translate(-50%, -50%) scale(1.06);
+}
