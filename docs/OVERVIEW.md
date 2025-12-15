@@ -1,51 +1,72 @@
 Overview — choufli-hal
 
-This document helps you read and navigate the project quickly without changing site behaviour.
+This document helps you read and navigate the project quickly. The repository was reorganized so the frontend and backend are in separate top-level folders to make the structure clearer and safer for publishing.
 
 Top-level folders
 
-- src/
-
+- `frontend/`
   - Frontend source (React + TypeScript) used by Vite.
-  - Entry points: `main.tsx` and `App.tsx`.
-  - UI pages/components: `menu.tsx`, `therapist.tsx`, `PlayButton.tsx`, `SettingsButton.tsx`.
+  - Entry points: `frontend/src/main.tsx` and `frontend/src/App.tsx`.
+  - UI pages/components: `frontend/src/menu.tsx`, `frontend/src/therapist.tsx`, `frontend/src/components/PlayButton.tsx`, etc.
+  - `frontend/package.json` contains the scripts for local dev and build.
 
-- public/
+- `backend/`
+  - Minimal Node.js backend (Express) with simple auth and user CRUD routes. See `backend/index.js`.
+  - Start locally with `node backend/index.js` (Node.js required). To use the API fully, provide a MongoDB connection.
 
-  - Static HTML pages used for testing or fallback pages such as `game3.html` and `chatbox (1).html`.
+- `docs/` — documentation and proposed README files.
+- `public/` / `frontend/public/` — static HTML and assets for the frontend.
+- `assets/` — media and images used by the frontend (textures, images, etc.).
 
-- back/
+Important files and scripts
 
-  - Minimal Node.js backend (Express) with simple auth and user routes. See `back/index.js`.
-
-- assets/
-  - Media and images used by the frontend (textures, images, etc.).
-
-Important files
-
-- `package.json` — scripts you will use:
-
+- `frontend/package.json` — scripts you will use (run from repo root or cd into `frontend/`):
   - `npm run dev` — start Vite dev server
   - `npm run build` — build the project
   - `npm run preview` — preview built site
 
-- `vite.config.ts` — Vite configuration for the frontend.
-- `tsconfig.*.json` — TypeScript configuration files.
-- `eslint.config.js` — lint rules for the project.
+- `backend/package.json` (if present) — backend dependencies and scripts.
+- `docs/OVERVIEW.md` — this file (updated to match current layout).
+- `.env.example` — example environment variables (do NOT commit real secrets).
 
-Backend notes
+Environment variables
 
-- Start the backend with `node back/index.js` (requires Node.js and optional MongoDB).
-- Environment variables:
-  - `MONGO_URI` (default: `mongodb://127.0.0.1:27017/demo`)
-  - `JWT_SECRET` (default: `devsecret`)
+Keep secrets out of the repo. Use a local `.env` (ignored) based on `.env.example`.
 
-How I rephrased the project
+- `VITE_GROQ_KEY` — API key for Groq (used by the chat widget). Do not commit.
+- `MONGO_URI` — MongoDB connection string (e.g. `mongodb://user:pass@host:27017/dbname`).
+- `JWT_SECRET` — JWT signing secret used by the backend.
 
-- I added this `docs/OVERVIEW.md` to provide a concise map of the repository and how to run the app locally.
-- No code or UI behavior was changed — only documentation was added to improve readability.
+Backend API summary
 
-If you want, I can also:
+- `GET /` — health check
+- `POST /auth/signup` — register (expects `email`, `username`, `password`)
+- `POST /auth/signin` — sign in (expects `username`, `password`)
+- `POST /users` / `POST /users/add` — create user
+- `GET /users` / `GET /users/:id` — list / get user
+- `PUT /users/:id` — update user
+- `DELETE /users/:id` — delete user
 
-- Replace the root `README.md` with a cleaned, concise README (I prepared the content) — tell me to proceed.
-- Add a short `CONTRIBUTING.md` or a `docs/DEVELOPMENT.md` with step-by-step local dev instructions.
+Security and publishing notes
+
+- I removed hardcoded API keys and added `.env.example`. Keep your real `.env` local and never commit it.
+- The repository history was cleaned to remove an accidentally committed secret. If you or collaborators previously cloned the repo, re-clone after this change because history was rewritten.
+
+Local dev quick steps
+
+1. Copy `.env.example` -> `.env` and fill real values locally.
+2. Start backend (from repo root):
+
+```bash
+node backend/index.js
+```
+
+3. Start frontend (from repo root):
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+If you want, I can also replace the root `README.md` with the proposed cleaned README and commit it. If you'd like that, I will proceed and push the change.
