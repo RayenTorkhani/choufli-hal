@@ -5,12 +5,14 @@ This document helps you read and navigate the project quickly. The repository wa
 Top-level folders
 
 - `frontend/`
+
   - Frontend source (React + TypeScript) used by Vite.
   - Entry points: `frontend/src/main.tsx` and `frontend/src/App.tsx`.
   - UI pages/components: `frontend/src/menu.tsx`, `frontend/src/therapist.tsx`, `frontend/src/components/PlayButton.tsx`, etc.
   - `frontend/package.json` contains the scripts for local dev and build.
 
 - `backend/`
+
   - Minimal Node.js backend (Express) with simple auth and user CRUD routes. See `backend/index.js`.
   - Start locally with `node backend/index.js` (Node.js required). To use the API fully, provide a MongoDB connection.
 
@@ -21,6 +23,7 @@ Top-level folders
 Important files and scripts
 
 - `frontend/package.json` — scripts you will use (run from repo root or cd into `frontend/`):
+
   - `npm run dev` — start Vite dev server
   - `npm run build` — build the project
   - `npm run preview` — preview built site

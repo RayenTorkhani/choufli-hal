@@ -10,7 +10,7 @@ type MenuProps = {
   onLogout: () => void;
 };
 
-export default function Menu({ username, onLogout }: MenuProps) {
+export default function Menu({ onLogout }: MenuProps) {
   const [hover, setHover] = useState<"none" | "left" | "right">("none");
   const currentBg =
     hover === "left" ? main2 : hover === "right" ? main3 : mainBg;
