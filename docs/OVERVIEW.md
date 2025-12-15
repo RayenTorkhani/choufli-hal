@@ -5,14 +5,17 @@ This document helps you read and navigate the project quickly without changing s
 Top-level folders
 
 - src/
+
   - Frontend source (React + TypeScript) used by Vite.
   - Entry points: `main.tsx` and `App.tsx`.
   - UI pages/components: `menu.tsx`, `therapist.tsx`, `PlayButton.tsx`, `SettingsButton.tsx`.
 
 - public/
+
   - Static HTML pages used for testing or fallback pages such as `game3.html` and `chatbox (1).html`.
 
 - back/
+
   - Minimal Node.js backend (Express) with simple auth and user routes. See `back/index.js`.
 
 - assets/
@@ -21,6 +24,7 @@ Top-level folders
 Important files
 
 - `package.json` — scripts you will use:
+
   - `npm run dev` — start Vite dev server
   - `npm run build` — build the project
   - `npm run preview` — preview built site
@@ -45,4 +49,3 @@ If you want, I can also:
 
 - Replace the root `README.md` with a cleaned, concise README (I prepared the content) — tell me to proceed.
 - Add a short `CONTRIBUTING.md` or a `docs/DEVELOPMENT.md` with step-by-step local dev instructions.
-
